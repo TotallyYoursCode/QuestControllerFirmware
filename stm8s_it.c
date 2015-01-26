@@ -23,8 +23,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s_it.h"
-#include "interboards_comm.h"
-
 
 
 /** @addtogroup Template_Project
@@ -345,146 +343,7 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
  }
 #endif /*STM8S208 or STM8S207 or STM8S103 or STM8S903 or STM8AF62Ax or STM8AF52Ax */
 
-/**
-  * @brief I2C Interrupt routine.
-  * @param  None
-  * @retval None
-  */
-
-#include "interboards_comm.h"
-static uint8_t I2C_Buf[sizeof(EXT_BOARD_PACKET_T)], *pI2C_Buf, Bytes, Complete = 0;
-
-uint8_t I2C_get_data(uint8_t * buf){
-  if(Complete){
-    pI2C_Buf = I2C_Buf;
-    while(Bytes--){
-      *buf++ = *pI2C_Buf++;
-    }
-    Complete = 0;    
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
- 
-INTERRUPT_HANDLER(I2C_IRQHandler, 19){
-  volatile uint8_t sr1, sr2, sr3;
   
-  // save the I2C registers configuration
-  sr1 = I2C->SR1;
-  sr2 = I2C->SR2;
-  sr3 = I2C->SR3;
-    
-  /* Communication error? */
-  if (sr2 & (I2C_SR2_WUFH | I2C_SR2_OVR |I2C_SR2_ARLO |I2C_SR2_BERR)){		
-    I2C->CR2|= I2C_CR2_STOP;    // stop communication - release the lines
-    I2C->SR2 = 0;               // clear all error flags
-  }
-  
-  /* Slave address matched (Start Comm) */
-  if (sr1 & I2C_SR1_ADDR){
-    pI2C_Buf = I2C_Buf;
-    Bytes = 0;
-  }
-  
-  /* Shift register not empty, Data register not empty */
-  if ((sr1 & (I2C_SR1_RXNE | I2C_SR1_BTF)) == (I2C_SR1_RXNE | I2C_SR1_BTF)){
-    *pI2C_Buf++ = I2C_ReceiveData();
-    Bytes++;
-  }
-  
-  /* Data register not empty */
-  if (sr1 & I2C_SR1_RXNE){
-    *pI2C_Buf++ = I2C_ReceiveData();
-    Bytes++;
-  }
-  
-  /* Stop bit from Master  (End of slave receive comm) */
-  if (sr1 & I2C_SR1_STOPF){
-    I2C->CR2 |= I2C_CR2_ACK;
-    Complete = 1;
-  }
-  
-  
-  ///* NAK? ( == end of slave transmit comm) */
-  //if (sr2 & I2C_SR2_AF){
-  //  I2C->SR2 &= ~I2C_SR2_AF;	  // clear AF
-  //		I2C_transaction_end();
-  //	}
-  
-  ///* More bytes to transmit ? */
-  //if ((sr1 & (I2C_SR1_TXE | I2C_SR1_BTF)) == (I2C_SR1_TXE | I2C_SR1_BTF))
-  //{
-  //		I2C->DR = I2C_byte_write();
-  //}
-  
-  ///* Byte to transmit ? */
-  //if (sr1 & I2C_SR1_TXE)
-  //{
-  //I2C->DR = I2C_byte_write();
-  //}
-
-#if 0
-  /* Read SR2 register to get I2C error */
-  if ((I2C->SR2) != 0){
-    /* Clears SR2 register */
-    I2C->SR2 = 0;
-    /* Set LED2 */
-  }
-  switch (I2C_GetLastEvent()){
-   case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:        /* --EV1 */
-    pI2C_Buf = I2C_Buf;
-    Bytes = 0;
-    break;
-    
-   case I2C_EVENT_SLAVE_BYTE_RECEIVED:                   /* --EV2 */
-   case 0x0244:
-    *pI2C_Buf++ = I2C_ReceiveData();
-    Bytes++;
-    break;
-    
-   case I2C_EVENT_SLAVE_STOP_DETECTED:                  /* --EV4 */
-    I2C->CR2 |= I2C_CR2_ACK;
-    Complete = 1;
-    break;
-   
-   default:
-    break;
-  }
-#endif
-
-#if 0
- 
-      /******* Slave receiver **********/
-      /* check on EV1*/
-    case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED:
-     printf("Slave receiver address match\n\r");
-     pBuf = (uint8_t *)&Buf;
-     State = 0;
-      break;
-
-      /* Check on EV2*/
-    case I2C_EVENT_SLAVE_BYTE_RECEIVED:
-      *pBuf++ = I2C_ReceiveData();      
-      printf("Slave byte received %d\n\r", *(pBuf-1));
-      break;
-
-      /* Check on EV4 */
-    case (I2C_EVENT_SLAVE_STOP_DETECTED):
-      printf("Slave stop detected\n\r");
-            /* write to CR2 to clear STOPF flag */
-            I2C->CR2 |= I2C_CR2_ACK;
-            State = 1;
-      break;
-
-    default:
-      break;
-#endif
-
-}
-
-
 #if defined(STM8S105) || defined(STM8S005) ||  defined (STM8AF626x)
 /**
   * @brief UART2 TX interrupt routine.
@@ -550,19 +409,7 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19){
     */
  }
 #else /*STM8S105, STM8S103 or STM8S903 or STM8AF626x */
-/**
-  * @brief ADC1 interrupt routine.
-  * @par Parameters:
-  * None
-  * @retval 
-  * None
-  */
- INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
- {
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
- }
+
 #endif /*STM8S208 or STM8S207 or STM8AF52Ax or STM8AF62Ax */
 
 #ifdef STM8S903

@@ -30,7 +30,6 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-uint8_t I2C_get_data(uint8_t * buf);
 
 #ifdef _COSMIC_
  void _stext(void); /* RESET startup routine */
