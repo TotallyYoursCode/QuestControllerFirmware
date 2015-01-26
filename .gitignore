@@ -1,4 +1,6 @@
 **/Exe
 **/List
 **/Obj
+/Arduino Wire not blocking
+*.settings
 
