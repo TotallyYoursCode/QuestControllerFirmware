@@ -1,53 +1,58 @@
-#include <MsTimer2.h>
 #include <ExtPins.h>
-#include <interboards_comm.h>
 #include <Wire.h>
+#include <interboards_comm.h>
+#include <MsTimer2.h>
 
-Ext ext;
-uint8_t cnt_ext_process, ext_process_flag;
 
-void setup(){
-  uint8_t i;
-  Serial.begin(115200);
-  Serial.println("start Arduino");
-  
-  for(i = 0; i < 20; i++){
-    ext.PinMode((EXT_PIN_NAME_T)i, INPUT_PU);
-  }
-  ext.PinMode(EXT_PIN_20, OUTPUT_PP);
-  ext.DigitalWrite(EXT_PIN_20, 1);
-  Serial.println("External pins config completed");
+void setup()
+{
+		Serial.begin(115200);
+		Serial.println("Start Test scatch.");
 
-  for(i = 0; i < 4; i++){
-    ext.PowerOutMode((EXT_POWER_OUT_NAME_T)i, LOGICAL);
-    ext.PowerOutWrite((EXT_POWER_OUT_NAME_T)i, 1);
-  }
-  Serial.println("External power outs config completed");
-  MsTimer2::set(1, timer_ev);
-  MsTimer2::start();
+		ext.PinMode(EXT_PIN_1, ANALOG_IN);
+		ext.PinMode(EXT_PIN_2, ANALOG_IN);
+		ext.PinMode(EXT_PIN_3, ANALOG_IN);
+		ext.PinMode(EXT_PIN_6, OUTPUT_PP);
+		ext.DigitalWrite(EXT_PIN_6, 1);
+
+		ext.PowerOutMode(EXT_POWER_OUT_0, LOGICAL);
+		ext.PowerOutWrite(EXT_POWER_OUT_0, 1);
+
+		MsTimer2::set(STD_UPDATE_PERIOD, timer_ev);
+		MsTimer2::start();
 }
 
-void timer_ev(){
-  if(++cnt_ext_process>10){    
-    cnt_ext_process = 0;
-    /*
-    ext_process_flag = 1;
-    */
-    interrupts();
-    ext.process();
-  }
+void timer_ev()
+{
+		interrupts();
+		ext.process();
 }
 
 
-void loop(){
-  /*
-  if(ext_process_flag){
-    ext_process_flag = 0;
-    ext.process();
-  }
-  */
-  Serial.println("Good.");
-  delay(500);
-
+void loop()
+{
+		uint8_t Ch1, Ch2, Ch3;
+		static uint8_t isClosed = 1;
+		Ch1 = ext.AnalogRead(EXT_PIN_1);
+		Ch2 = ext.AnalogRead(EXT_PIN_2);
+		Ch3 = ext.AnalogRead(EXT_PIN_3);
+		Serial.print(" Ch1 = ");
+		Serial.print(Ch1, DEC);
+		Serial.print(" Ch2 = ");
+		Serial.print(Ch2, DEC);
+		Serial.print(" Ch3 = ");
+		Serial.println(Ch3, DEC);
+		if (isClosed) {
+				if (Ch1 > 100 && Ch1 < 120) {
+						if (Ch2 > 120 && Ch2 < 140) {
+								if (Ch3 > 50 && Ch3 < 70) {
+										ext.PowerOutWrite(EXT_POWER_OUT_0, 0);
+										isClosed = 0;
+								}
+						}
+				}
+		}
+		delay(1000);
 }
+
 
