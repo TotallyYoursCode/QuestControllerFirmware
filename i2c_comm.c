@@ -135,12 +135,20 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
 
     /* Data register not empty */
     if (sr1 & I2C_SR1_RXNE) {
-        *pRecBuf++ = I2C->DR;
-        BytesReceived++;
-        if (sr1 & I2C_SR1_BTF) {
-            *pRecBuf++ = I2C->DR;
-            BytesReceived++;
-        }
+		if (BytesReceived < sizeof(EXT_BOARD_PACKET_T)) {
+			BytesReceived++;
+			*pRecBuf++ = I2C->DR;
+			if (sr1 & I2C_SR1_BTF) {
+				if (BytesReceived < sizeof(EXT_BOARD_PACKET_T)) {
+					BytesReceived++;
+					*pRecBuf++ = I2C->DR;
+				} else {
+					I2C->DR;
+				}
+			}
+		} else {
+			I2C->DR;
+		}
         //return;
     }
     /* NAK from master ( == end of slave transmit comm) */
@@ -201,7 +209,9 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
                 if (BytesToTransmit) {
                     I2C->DR = *pTrBuf++;
                     BytesToTransmit--;
-                }
+                } else {
+					I2C->DR = 0x00;
+				}
             }
         } else {
             I2C->DR = 0x00;
