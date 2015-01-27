@@ -1,5 +1,7 @@
 #include "analog_outputs.h"
 
+#include <stdio.h>
+
 void analogOutputsInit(void)
 {
 	TIM1_DeInit();
