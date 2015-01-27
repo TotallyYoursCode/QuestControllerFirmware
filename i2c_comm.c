@@ -32,6 +32,7 @@ void I2C_init(void)
     GPIOE->CR1 |=   (1 << 2) | (1 << 1);
     GPIOE->DDR &= ~((1 << 2) | (1 << 1));
     GPIOE->CR2 &= ~((1 << 2) | (1 << 1));
+	ITC_SetSoftwarePriority(ITC_IRQ_I2C, ITC_PRIORITYLEVEL_3);	// the highest priority
     I2C_DeInit();
     I2C_Init(EXT_PLATE_I2C_SPEED, (EXT_PLATE_SLAVE_ADDR << 1), I2C_DUTYCYCLE_2, I2C_ACK_CURR, I2C_ADDMODE_7BIT, 16);
     I2C_ITConfig((I2C_IT_TypeDef)(I2C_IT_ERR | I2C_IT_EVT | I2C_IT_BUF), ENABLE);
