@@ -50,9 +50,9 @@ ADC1_Channel_TypeDef ExtPinAdcChannel(EXT_PIN_NAME_T pin)
 {
 	if (pin <= 10 && pin >= 1) {
 		if (pin <= 8) {
-			return (8-pin);
+			return (ADC1_Channel_TypeDef)(8-pin);
 		} else {
-			return (pin-1);
+			return (ADC1_Channel_TypeDef)(pin-1);
 		}
 	} else {
 		return ADC_NOT_SUPPORTED;
