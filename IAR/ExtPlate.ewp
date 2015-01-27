@@ -1576,6 +1576,9 @@
     <file>
       <name>$PROJ_DIR$\..\analog_outputs.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\uart_debug.c</name>
+    </file>
   </group>
   <group>
     <name>Lib</name>

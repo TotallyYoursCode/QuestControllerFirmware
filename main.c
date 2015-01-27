@@ -15,10 +15,11 @@
 #include "interboards_comm.h"
 #include "analog_inputs.h"
 #include "analog_outputs.h"
+#include "uart_debug.h"
 #include "board.h"
 #include "stdio.h"
 #include "string.h"
-#define PUTCHAR_PROTOTYPE int putchar (int c)
+
 
 EXT_BOARD_PACKET_T      i2c_Buf;
 EXT_PIN_MODE_T          PinConfig[__EXT_PIN_COUNT];
@@ -57,7 +58,7 @@ void main(void){
   ConfigNum = StateNum = 0;
   sysclock_init();
   ports_init();
-  uart_init();
+  uartDebugInit();
   analogOutputsInit();
   ADC_init();
   I2C_init();
@@ -88,11 +89,7 @@ void ports_init(void){
   }
 }
 
-void uart_init(void){
-  UART2_DeInit();
-  UART2_Init((uint32_t)256000, UART2_WORDLENGTH_8D, UART2_STOPBITS_1, UART2_PARITY_NO,
-             UART2_SYNCMODE_CLOCK_DISABLE, UART2_MODE_TX_ENABLE);
-}
+
 
 void ADC_init(void){
   ADC1_DeInit();
@@ -382,16 +379,6 @@ void form_i2c_data(void){
    ADC1_ClearITPendingBit(ADC1_IT_EOC);
  }
 
-PUTCHAR_PROTOTYPE
-{
-  /* Write a character to the UART1 */
-  UART2_SendData8(c);
-
-  /* Loop until the end of transmission */
-  while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET);
-
-  return (c);
-}
 
 
 #ifdef USE_FULL_ASSERT

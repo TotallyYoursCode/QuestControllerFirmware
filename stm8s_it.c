@@ -350,12 +350,6 @@ INTERRUPT_HANDLER(TIM1_CAP_COM_IRQHandler, 12)
   * @param  None
   * @retval None
   */
- INTERRUPT_HANDLER(UART2_TX_IRQHandler, 20)
- {
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
- }
 
 /**
   * @brief UART2 RX interrupt routine.
