@@ -2,9 +2,9 @@
 /* MCU Port definitions for external pins */
 GPIO_TypeDef * ExtPinGPIOPort[__EXT_PIN_COUNT] = {
   /* EXT_PIN_0 : EXT_PIN_6 GPIO Ports */
-  GPIOA, GPIOB, GPIOB, GPIOB, GPIOB, GPIOB, GPIOB,  
+  GPIOA, GPIOB, GPIOB, GPIOB, GPIOB, GPIOB, GPIOB,
   /* EXT_PIN_7 : EXT_PIN_13 GPIO Ports */
-  GPIOB, GPIOB, GPIOE, GPIOE, GPIOC, GPIOC, GPIOC,  
+  GPIOB, GPIOB, GPIOE, GPIOE, GPIOC, GPIOC, GPIOC,
   /* EXT_PIN_14 : EXT_PIN_20 GPIO Ports */
   GPIOC, GPIOC, GPIOC, GPIOG, GPIOG, GPIOE, GPIOE
 };
@@ -45,3 +45,21 @@ GPIO_Mode_TypeDef ExtPowerOutMode[__EXT_POWER_OUT_MODE_COUNT] = {
   GPIO_MODE_OUT_PP_LOW_FAST,    /* LOGICAL */
   GPIO_MODE_OUT_PP_LOW_FAST     /* PWM */
 };
+
+ADC1_Channel_TypeDef ExtPinAdcChannel(EXT_PIN_NAME_T pin)
+{
+	if (pin <= 10 && pin >= 1) {
+		if (pin <= 8) {
+			return (8-pin);
+		} else {
+			return (pin-1);
+		}
+	} else {
+		return ADC_NOT_SUPPORTED;
+	}
+}
+
+//	ADC_NS,			ADC1_CHANNEL_7, ADC1_CHANNEL_6, ADC1_CHANNEL_5, ADC1_CHANNEL_4, ADC1_CHANNEL_3, ADC1_CHANNEL_2,
+//	ADC1_CHANNEL_1,	ADC1_CHANNEL_0, ADC1_CHANNEL_8, ADC1_CHANNEL_9, ADC_NS,			ADC_NS,			ADC_NS,
+//	ADC_NS,			ADC_NS,			ADC_NS,			ADC_NS,			ADC_NS,			ADC_NS,			ADC_NS
+

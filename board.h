@@ -22,4 +22,7 @@ extern GPIO_Mode_TypeDef ExtPinMode[__EXT_PIN_MODE_COUNT];
 /* pin config definition for all extrenal power output modes */
 extern GPIO_Mode_TypeDef ExtPowerOutMode[__EXT_POWER_OUT_MODE_COUNT];
 
+#define ADC_NOT_SUPPORTED  ((ADC1_Channel_TypeDef)(255))
+ADC1_Channel_TypeDef ExtPinAdcChannel(EXT_PIN_NAME_T pin);
+
 #endif
