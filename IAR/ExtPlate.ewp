@@ -250,8 +250,7 @@
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\StdPeriph\inc</state>
           <state>$PROJ_DIR$\..\</state>
-          <state>C:\Program Files (x86)\Arduino\libraries\ExtPins</state>
-          <state>$PROJ_DIR$\..\..\extpins</state>
+          <state>C:\Users\Kiselev.E\Documents\Arduino\libraries\extpins</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
