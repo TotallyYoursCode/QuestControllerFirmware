@@ -62,7 +62,7 @@ void main(void){
   analogOutputsInit();
   ADC_init();
   I2C_init();
-  printf("External Pins Plate v1.0.0\n\r");
+  printf("External Pins Plate v1.0.1\n\r");
 
 
   enableInterrupts();
@@ -94,7 +94,7 @@ void ports_init(void){
 void ADC_init(void){
   ADC1_DeInit();
   ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
-  ADC1->CR1 |= ADC1_CR1_ADON;
+  // ADC1->CR1 |= ADC1_CR1_ADON;
 }
 
 
@@ -237,10 +237,12 @@ void periph_config_apply(void){
     CurAdcCh = i;
     //printf("First conversion ADC channel is:%d \r\n", i);
     ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, (ADC1_Channel_TypeDef)i, ADC1_ALIGN_LEFT);
+	ADC1->CR1 |= ADC1_CR1_ADON;
     ADC1_ITConfig(ADC1_IT_EOCIE, ENABLE);
     ADC1_StartConversion();
   } else {
     //printf("Disable ADC converter, because of no analog inputs\r\n");
+	ADC1->CR1 &= (~ADC1_CR1_ADON);
     ADC1_ITConfig(ADC1_IT_EOCIE, DISABLE);
   }
 
