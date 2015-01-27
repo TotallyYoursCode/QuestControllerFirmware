@@ -2,7 +2,7 @@
 #include "stm8s.h"
 
 
-static uint8_t buf[DEBUG_BUF_LEN], head, tail, cnt;
+static volatile uint8_t buf[DEBUG_BUF_LEN], head, tail, cnt;
 
 void uartDebugInit(void)
 {
@@ -16,21 +16,22 @@ void uartDebugInit(void)
 
   	/* Enable UART */
     UART2->CR1 &= (uint8_t)(~UART2_CR1_UARTD);
+	head = tail = cnt = 0;
 }
 	
 
 int putchar(int c)
 {
+	UART2->CR2 &= (~UART2_CR2_TIEN);
 	if (cnt < DEBUG_BUF_LEN) {
 		cnt++;
 		buf[tail] = c;
 		if (++tail >= DEBUG_BUF_LEN) {
 			tail = 0;
 		}
-		UART2->CR2 |= UART2_CR2_TIEN;
-		return 1;
 	}
-	return 0;
+	UART2->CR2 |= UART2_CR2_TIEN;
+	return c;
 }
 
  INTERRUPT_HANDLER(UART2_TX_IRQHandler, 20)
