@@ -61,6 +61,7 @@ void main(void){
   sysclock_init();
   ports_init();
   uart_init();
+  analogOutputsInit();
   //TIM1_init();
   //TIM2_init();
   //TIM3_init();
@@ -104,115 +105,6 @@ void ADC_init(void){
   ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
   ADC1->CR1 |= ADC1_CR1_ADON;
 }
-
-void TIM1_init(void){
-  TIM1_DeInit();
-
-  /* Time Base configuration */
-  /*
-  TIM1_Prescaler = 0 (f/(prescaler+1)
-  TIM1_CounterMode = TIM1_COUNTERMODE_UP
-  TIM1_Period = 255
-  TIM1_RepetitionCounter = 0
-  */
-
-	// Select counter clock
-	TIM1->PSCRH = 0;
-	TIM1->PSCRL = 1;
-	// write ARR, CCRi
-	TIM1->CR1 |= TIM1_CR1_ARPE;
-	TIM1->ARRH = 0;
-	TIM1->ARRL = 255;
-	//TIM1->CCMR1
-
-
-  TIM1_TimeBaseInit(0, TIM1_COUNTERMODE_UP, 255, 0);
-  TIM1_OC1Init(TIM1_OCMODE_PWM1, TIM1_OUTPUTSTATE_DISABLE, TIM1_OUTPUTNSTATE_DISABLE,
-               0, TIM1_OCPOLARITY_HIGH, TIM1_OCNPOLARITY_LOW, TIM1_OCIDLESTATE_RESET,
-               TIM1_OCNIDLESTATE_SET);
-  TIM1_OC2Init(TIM1_OCMODE_PWM1, TIM1_OUTPUTSTATE_DISABLE, TIM1_OUTPUTNSTATE_DISABLE,
-               0, TIM1_OCPOLARITY_HIGH, TIM1_OCNPOLARITY_LOW, TIM1_OCIDLESTATE_RESET,
-               TIM1_OCNIDLESTATE_SET);
-  TIM1_OC3Init(TIM1_OCMODE_PWM1, TIM1_OUTPUTSTATE_DISABLE, TIM1_OUTPUTNSTATE_DISABLE,
-               0, TIM1_OCPOLARITY_HIGH, TIM1_OCNPOLARITY_LOW, TIM1_OCIDLESTATE_RESET,
-               TIM1_OCNIDLESTATE_SET);
-  TIM1_Cmd(ENABLE);
-  TIM1_CtrlPWMOutputs(ENABLE);
-}
-
-void PinPWMEnable(uint8_t pin, uint8_t val){
-  switch(pin){
-   case EXT_PIN_11:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER1 &= (uint8_t)(~( TIM1_CCER1_CC1E));
-    /* Set the Output State */
-    TIM1->CCER1 |= (uint8_t)(TIM1_OUTPUTNSTATE_ENABLE & TIM1_CCER1_CC1E);
-    /* Set the Pulse value */
-    TIM1->CCR1H = (uint8_t)(val >> 8);
-    TIM1->CCR1L = (uint8_t)(val);
-    break;
-
-   case EXT_PIN_12:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER1 &= (uint8_t)(~( TIM1_CCER1_CC2E));
-    /* Set the Output State */
-    TIM1->CCER1 |= (uint8_t)(TIM1_OUTPUTNSTATE_ENABLE & TIM1_CCER1_CC2E);
-    /* Set the Pulse value */
-    TIM1->CCR2H = (uint8_t)(val >> 8);
-    TIM1->CCR2L = (uint8_t)(val);
-    break;
-
-   case EXT_PIN_13:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER2 &= (uint8_t)(~( TIM1_CCER2_CC3E));
-    /* Set the Output State */
-    TIM1->CCER2 |= (uint8_t)(TIM1_OUTPUTNSTATE_ENABLE & TIM1_CCER2_CC3E);
-    /* Set the Pulse value */
-    TIM1->CCR3H = (uint8_t)(val >> 8);
-    TIM1->CCR3L = (uint8_t)(val);
-    break;
-  }
-}
-
-void PinPWMDisable(uint8_t pin){
-  switch(pin){
-   case EXT_PIN_11:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER1 &= (uint8_t)(~( TIM1_CCER1_CC1E));
-    break;
-
-   case EXT_PIN_12:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER1 &= (uint8_t)(~( TIM1_CCER1_CC2E));
-    break;
-
-   case EXT_PIN_13:
-    /* Disable the Channel 1: Reset the CCE Bit */
-    TIM1->CCER2 &= (uint8_t)(~( TIM1_CCER2_CC3E));
-    break;
-  }
-}
-
-void PinPWMSetVal(uint8_t pin, uint8_t val){
-  switch(pin){
-   case EXT_PIN_11:
-    /* Set the Pulse value */
-    TIM1->CCR1H = (uint8_t)(val >> 8);
-    TIM1->CCR1L = (uint8_t)(val);
-    break;
-   case EXT_PIN_12:
-    /* Set the Pulse value */
-    TIM1->CCR2H = (uint8_t)(val >> 8);
-    TIM1->CCR2L = (uint8_t)(val);
-    break;
-   case EXT_PIN_13:
-    /* Set the Pulse value */
-    TIM1->CCR3H = (uint8_t)(val >> 8);
-    TIM1->CCR3L = (uint8_t)(val);
-    break;
-  }
-}
-
 
 
 void TIM2_init(void){
@@ -428,9 +320,9 @@ void periph_config_apply(void){
     if(CAN_BE_ANALOG_OUT(i)){
       if(PinConfig[i] == ANALOG_OUT){
         //printf("   AO pin: %d\r\n", i);
-        PinPWMEnable(i, PinState[i].AnalogOut);
+        analogOutputEnable((EXT_PIN_NAME_T)i, PinState[i].AnalogOut);
       } else {
-        PinPWMDisable(i);
+        analogOutputDisable((EXT_PIN_NAME_T)i);
       }
     }
 
@@ -496,7 +388,7 @@ void periph_new_state(void){
     switch(PinConfig[i]){
      case ANALOG_OUT:
       //printf("Pin %d, (analog out), set value: %dV\r\n", i, PinState[i].AnalogOut*5/256);
-      PinPWMSetVal(i, PinState[i].AnalogOut);
+      analogOutputEnable((EXT_PIN_NAME_T)i, PinState[i].AnalogOut);
       break;
 
      case OUTPUT_PP:
