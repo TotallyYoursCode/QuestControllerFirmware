@@ -1572,6 +1572,12 @@
     </settings>
   </configuration>
   <group>
+    <name>app</name>
+    <file>
+      <name>$PROJ_DIR$\..\analog_outputs.c</name>
+    </file>
+  </group>
+  <group>
     <name>Lib</name>
     <file>
       <name>$PROJ_DIR$\..\crc8.c</name>

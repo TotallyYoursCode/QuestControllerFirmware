@@ -48,9 +48,6 @@ struct{
 void sysclock_init();
 void ports_init();
 void uart_init();
-void TIM1_init(void);
-void TIM2_init(void);
-void TIM3_init(void);
 void ADC_init(void);
 void parce_i2c_data(void);
 void periph_update(void);
@@ -62,9 +59,6 @@ void main(void){
   ports_init();
   uart_init();
   analogOutputsInit();
-  //TIM1_init();
-  //TIM2_init();
-  //TIM3_init();
   ADC_init();
   I2C_init();
   printf("External Pins Plate v1.0.0\n\r");
@@ -106,118 +100,6 @@ void ADC_init(void){
   ADC1->CR1 |= ADC1_CR1_ADON;
 }
 
-
-void TIM2_init(void){
-  TIM2_DeInit();
-  TIM2_TimeBaseInit(TIM2_PRESCALER_1, 255);
-  TIM2_OC1Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_DISABLE, 0, TIM2_OCPOLARITY_HIGH);
-  TIM2_OC2Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_DISABLE, 0, TIM2_OCPOLARITY_HIGH);
-  TIM2_Cmd(ENABLE);
-}
-
-void TIM3_init(void){
-  TIM3_DeInit();
-  TIM3_TimeBaseInit(TIM3_PRESCALER_1, 255);
-  TIM3_OC1Init(TIM3_OCMODE_PWM1, TIM3_OUTPUTSTATE_DISABLE, 0, TIM3_OCPOLARITY_HIGH);
-  TIM3_OC2Init(TIM3_OCMODE_PWM1, TIM3_OUTPUTSTATE_DISABLE, 0, TIM3_OCPOLARITY_HIGH);
-  TIM3_Cmd(ENABLE);
-}
-
-void PowerOutPWMEnable(uint8_t ch, uint8_t val){
-  switch(ch){
-   case EXT_POWER_OUT_0:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM2->CCER1 &= (uint8_t)(~( TIM2_CCER1_CC1E));
-    /* Set the Output State &  Set the Output Polarity  */
-    TIM2->CCER1 |= (uint8_t)(TIM2_OUTPUTSTATE_ENABLE & TIM2_CCER1_CC1E );
-    /* Set the Pulse value */
-    TIM2->CCR1H = (uint8_t)(val >> 8);
-    TIM2->CCR1L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_1:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM2->CCER1 &= (uint8_t)(~( TIM2_CCER1_CC2E));
-    /* Set the Output State &  Set the Output Polarity  */
-    TIM2->CCER1 |= (uint8_t)(TIM2_OUTPUTSTATE_ENABLE & TIM2_CCER1_CC2E );
-    /* Set the Pulse value */
-    TIM2->CCR2H = (uint8_t)(val >> 8);
-    TIM2->CCR2L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_2:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM3->CCER1 &= (uint8_t)(~( TIM3_CCER1_CC1E));
-    /* Set the Output State &  Set the Output Polarity  */
-    TIM3->CCER1 |= (uint8_t)(TIM3_OUTPUTSTATE_ENABLE & TIM3_CCER1_CC1E );
-    /* Set the Pulse value */
-    TIM3->CCR1H = (uint8_t)(val >> 8);
-    TIM3->CCR1L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_3:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM3->CCER1 &= (uint8_t)(~( TIM3_CCER1_CC2E));
-    /* Set the Output State &  Set the Output Polarity  */
-    TIM3->CCER1 |= (uint8_t)(TIM3_OUTPUTSTATE_ENABLE & TIM3_CCER1_CC2E );
-    /* Set the Pulse value */
-    TIM3->CCR2H = (uint8_t)(val >> 8);
-    TIM3->CCR2L = (uint8_t)(val);
-    break;
-  }
-}
-
-void PowerOutPWMDisable(uint8_t ch){
-  switch(ch){
-   case EXT_POWER_OUT_0:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM2->CCER1 &= (uint8_t)(~( TIM2_CCER1_CC1E));
-    break;
-
-   case EXT_POWER_OUT_1:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM2->CCER1 &= (uint8_t)(~( TIM2_CCER1_CC2E));
-    break;
-
-   case EXT_POWER_OUT_2:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM3->CCER1 &= (uint8_t)(~( TIM3_CCER1_CC1E));
-    break;
-
-   case EXT_POWER_OUT_3:
-    /* Disable the Channel 1: Reset the CCE Bit, Set the Output State */
-    TIM3->CCER1 &= (uint8_t)(~( TIM3_CCER1_CC2E));
-    break;
-  }
-}
-
-void PowerOutPWMSetVal(uint8_t ch, uint8_t val){
-  switch(ch){
-   case EXT_POWER_OUT_0:
-    /* Set the Pulse value */
-    TIM2->CCR1H = (uint8_t)(val >> 8);
-    TIM2->CCR1L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_1:
-    /* Set the Pulse value */
-    TIM2->CCR2H = (uint8_t)(val >> 8);
-    TIM2->CCR2L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_2:
-    /* Set the Pulse value */
-    TIM3->CCR1H = (uint8_t)(val >> 8);
-    TIM3->CCR1L = (uint8_t)(val);
-    break;
-
-   case EXT_POWER_OUT_3:
-    /* Set the Pulse value */
-    TIM3->CCR2H = (uint8_t)(val >> 8);
-    TIM3->CCR2L = (uint8_t)(val);
-    break;
-  }
-}
 
 void print_packet(uint8_t * buf, uint8_t len){
   while(len--){
@@ -368,9 +250,9 @@ void periph_config_apply(void){
   for(i = 0; i < __EXT_POWER_OUT_COUNT; i++){
     if(PowerOutConfig[i] == PWM){
       //printf("Enable PWM on Power Out %d, with duty cycle %d%% \r\n", i, (PowerOutState[i].PWM)*100/256);
-      PowerOutPWMEnable(i, PowerOutState[i].PWM);
+      powerOutPWMEnable((EXT_POWER_OUT_NAME_T)i, PowerOutState[i].PWM);
     } else {
-      PowerOutPWMDisable(i);
+      powerOutPWMDisable((EXT_POWER_OUT_NAME_T)i);
       if(PowerOutState[i].DigitalOut){
         //printf("PO pin: %d, write High\r\n", i);
         GPIO_WriteHigh(ExtPowerOutGPIOPort[i], ExtPowerOutNum[i]);
@@ -417,7 +299,7 @@ void periph_new_state(void){
 
      case PWM:
       //printf("Power Out:%d, (PWM) set value:%d\r\n", i, PowerOutState[i].PWM);
-      PowerOutPWMSetVal(i, PowerOutState[i].PWM);
+      powerOutPWMEnable((EXT_POWER_OUT_NAME_T)i, PowerOutState[i].PWM);
       break;
     }
   }

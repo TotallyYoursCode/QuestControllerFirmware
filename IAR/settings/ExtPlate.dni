@@ -1,5 +1,5 @@
 [Stack]
-FillEnabled=1
+FillEnabled=0
 OverflowWarningsEnabled=1
 WarningThreshold=90
 SpWarningsEnabled=1
@@ -62,13 +62,8 @@ LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\ExtPins.cpp}.2.1" 0 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\I2C Master (stm8l-discovery)\StdPeriphLib\src\stm8l15x_i2c.c}.1090.1" 0 0 0 0 "" 0 ""
-Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
-Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
-Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
-Bp5=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.339.3" 1 0 0 0 "" 0 ""
-Bp6=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
-Count=7
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\stm8s_it.c}.485.1" 1 0 0 0 "" 0 ""
+Count=2
 [Aliases]
 Count=0
 SuppressDialog=0
