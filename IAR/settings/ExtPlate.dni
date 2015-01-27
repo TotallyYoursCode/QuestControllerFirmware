@@ -1,5 +1,5 @@
 [Stack]
-FillEnabled=0
+FillEnabled=1
 OverflowWarningsEnabled=1
 WarningThreshold=90
 SpWarningsEnabled=1
@@ -8,6 +8,12 @@ UseTrigger=1
 TriggerName=main
 LimitSize=0
 ByteLimit=50
+[DebugChecksum]
+Checksum=-2146703947
+[CallStack]
+ShowArgs=0
+[Disassembly]
+MixedMode=1
 [InterruptLog]
 LogEnabled=0
 SumEnabled=0
@@ -35,16 +41,13 @@ ActionState=1
 [Trace1]
 Enabled=0
 ShowSource=1
-[DebugChecksum]
-Checksum=-1703563373
-[CallStack]
-ShowArgs=0
-[Disassembly]
-MixedMode=1
 [watch_formats]
 Fmt0={W}0:Bytes	3	0
-Fmt1={W}0:i	3	0
-Fmt2={W}0:lastevent	4	0
+Fmt1={W}0:BytesReceived	3	0
+Fmt2={W}0:BytesToTransmit	3	0
+Fmt3={W}0:ConvVal	4	0
+Fmt4={W}0:i	3	0
+Fmt5={W}0:lastevent	4	0
 [DataSample]
 LogEnabled=0
 GraphEnabled=0
@@ -59,8 +62,13 @@ LoggingEnabled=_ 0
 LogFile=_ ""
 [Breakpoints]
 Bp0=_ "STD_CODE" "{$PROJ_DIR$\..\ExtPins.cpp}.2.1" 0 0 0 0 "" 0 ""
-Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\stm8s_it.c}.485.1" 1 0 0 0 "" 0 ""
-Count=2
+Bp1=_ "STD_CODE" "{$PROJ_DIR$\..\I2C Master (stm8l-discovery)\StdPeriphLib\src\stm8l15x_i2c.c}.1090.1" 0 0 0 0 "" 0 ""
+Bp2=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
+Bp3=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
+Bp4=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
+Bp5=_ "STD_CODE" "{$PROJ_DIR$\..\main.c}.339.3" 1 0 0 0 "" 0 ""
+Bp6=_ "STD_CODE" "{$PROJ_DIR$\..\i2c_comm.c}.0.1" 1 0 0 0 "" 0 ""
+Count=7
 [Aliases]
 Count=0
 SuppressDialog=0
