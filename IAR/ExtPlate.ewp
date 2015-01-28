@@ -1573,6 +1573,9 @@
   <group>
     <name>app</name>
     <file>
+      <name>$PROJ_DIR$\..\analog_inputs.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\analog_outputs.c</name>
     </file>
     <file>

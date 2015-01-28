@@ -8,7 +8,6 @@
   ******************************************************************************
   */
 
-#include "main.h"
 #include "stm8s.h"
 #include "i2c_comm.h"
 #include "crc8.h"
@@ -27,9 +26,6 @@ EXT_PIN_STATE_T         PinState[__EXT_PIN_COUNT];
 EXT_POWER_OUT_MODE_T    PowerOutConfig[__EXT_POWER_OUT_COUNT];
 EXT_POWER_OUT_STATE_T   PowerOutState[__EXT_POWER_OUT_COUNT];
 
-#define AI_CHANNELS     (10)
-AI_CHANNEL_STATE_T      AIState[AI_CHANNELS];
-uint8_t                 AIValue[AI_CHANNELS], AICnt, CurAdcCh;
 
 uint8_t ConfigNum, StateNum;
 
@@ -60,7 +56,7 @@ void main(void){
   ports_init();
   uartDebugInit();
   analogOutputsInit();
-  ADC_init();
+  analogInputsInit();
   I2C_init();
   printf("External Pins Plate v1.0.1\n\r");
 
@@ -87,14 +83,6 @@ void ports_init(void){
   for(i = 0; i<__EXT_POWER_OUT_COUNT; i++){
     GPIO_Init(ExtPowerOutGPIOPort[i], ExtPowerOutNum[i], GPIO_MODE_OUT_PP_LOW_FAST);
   }
-}
-
-
-
-void ADC_init(void){
-  ADC1_DeInit();
-  ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
-  // ADC1->CR1 |= ADC1_CR1_ADON;
 }
 
 
@@ -193,8 +181,6 @@ void periph_config_correction(void){
 void periph_config_apply(void){
   //printf("Peripheral config apply process\r\n");
   int8_t i;
-  uint8_t adcCh;
-  AICnt = 0;
   for(i = 0; i < __EXT_PIN_COUNT; i++){
     if(CAN_BE_ANALOG_OUT(i)){
       if(PinConfig[i] == ANALOG_OUT){
@@ -218,34 +204,14 @@ void periph_config_apply(void){
     }
 
     if(CAN_BE_ANALOG_IN(i)){
-      adcCh = ExtPinAdcChannel((EXT_PIN_NAME_T)i);
-      if(PinConfig[i] == ANALOG_IN){
-        //printf("   AI pin: %d, ADC Channel:%d\r\n", i, adcCh);
-        AIState[adcCh] = ENABLED;
-        ADC1_SchmittTriggerConfig((ADC1_SchmittTrigg_TypeDef)adcCh, DISABLE);
-        AICnt++;
-      } else {
-        AIState[adcCh] = DISABLED;
-        ADC1_SchmittTriggerConfig((ADC1_SchmittTrigg_TypeDef)adcCh, ENABLE);
-      }
-    }
+		if(PinConfig[i] == ANALOG_IN){
+			//printf("   AI pin: %d, ADC Channel:%d\r\n", i, adcCh);
+			analogInputEnable((EXT_PIN_NAME_T)i);
+		} else {
+			analogInputDisable((EXT_PIN_NAME_T)i);
+		}
+	}
   }
-
-  if(AICnt != 0){
-    //printf("Starting AD conversion on %d pins. ", AICnt);
-    for(i = 0; AIState[i] == DISABLED; i++);
-    CurAdcCh = i;
-    //printf("First conversion ADC channel is:%d \r\n", i);
-    ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, (ADC1_Channel_TypeDef)i, ADC1_ALIGN_LEFT);
-	ADC1->CR1 |= ADC1_CR1_ADON;
-    ADC1_ITConfig(ADC1_IT_EOCIE, ENABLE);
-    ADC1_StartConversion();
-  } else {
-    //printf("Disable ADC converter, because of no analog inputs\r\n");
-	ADC1->CR1 &= (~ADC1_CR1_ADON);
-    ADC1_ITConfig(ADC1_IT_EOCIE, DISABLE);
-  }
-
   for(i = 0; i < __EXT_POWER_OUT_COUNT; i++){
     if(PowerOutConfig[i] == PWM){
       //printf("Enable PWM on Power Out %d, with duty cycle %d%% \r\n", i, (PowerOutState[i].PWM)*100/256);
@@ -306,8 +272,6 @@ void periph_new_state(void){
 
 void periph_get_state(void){
   uint8_t i;
-  static uint8_t cnt = 0;
-  cnt++;
   for(i = 0; i < __EXT_PIN_COUNT; i++){
     if(IS_DIGITAL_INPUT(PinConfig[i])){
       if(GPIO_ReadInputPin(ExtPinGPIOPort[i], ExtPinNum[i])){
@@ -318,17 +282,10 @@ void periph_get_state(void){
       continue;
     }
     if(PinConfig[i] == ANALOG_IN){
-      PinState[i].AnalogIn = AIValue[ExtPinAdcChannel((EXT_PIN_NAME_T)i)];
-      if(cnt == 0){
-        //printf("P%d=%d ", i, AIValue[ExtPinAdcChannel((EXT_PIN_NAME_T)i)]);
-      }
+      PinState[i].AnalogIn = analogInputGetValue((EXT_PIN_NAME_T)i); //AIValue[ExtPinAdcChannel((EXT_PIN_NAME_T)i)];
     }
   }
-  if((cnt == 0) & (AICnt != 0)) //printf("\r\n");
-  if(AICnt != 0){
-   ADC1_ITConfig(ADC1_IT_EOCIE, ENABLE);
-   ADC1_StartConversion();
-  }
+  analogInputStartConversion();
 }
 
 void periph_update(void){
@@ -356,30 +313,6 @@ void form_i2c_data(void){
   I2C_set_data(POLL, &i2c_Buf);
 }
 
-/**
-  * @brief ADC1 interrupt routine.
-  * @par Parameters:
-  * None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
- {
-   uint16_t ConvVal;
-   uint8_t i;
-   ConvVal = ADC1_GetConversionValue();
-   AIValue[CurAdcCh] = (ConvVal>>8)&0xFF;
-   for(i = CurAdcCh + 1; i != CurAdcCh; i++){
-     if(i>AI_CHANNELS)
-       i = 0;
-     if(AIState[i] == ENABLED){
-       ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, (ADC1_Channel_TypeDef)i, ADC1_ALIGN_LEFT);
-       CurAdcCh = i;
-       break;
-     }
-   }
-   ADC1_ClearITPendingBit(ADC1_IT_EOC);
- }
 
 
 
