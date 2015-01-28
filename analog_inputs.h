@@ -6,7 +6,6 @@
 void analogInputsInit(void);
 void analogInputEnable(EXT_PIN_NAME_T pin);
 void analogInputDisable(EXT_PIN_NAME_T pin);
-void analogInputReconfigurate(void);
 uint8_t analogInputGetValue(EXT_PIN_NAME_T pin);
 void analogInputStartConversion(void);
 

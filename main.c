@@ -211,7 +211,7 @@ void periph_config_apply(void){
 			analogInputDisable((EXT_PIN_NAME_T)i);
 		}
 	}
-  }  
+  }
   for(i = 0; i < __EXT_POWER_OUT_COUNT; i++){
     if(PowerOutConfig[i] == PWM){
       //printf("Enable PWM on Power Out %d, with duty cycle %d%% \r\n", i, (PowerOutState[i].PWM)*100/256);
@@ -227,7 +227,6 @@ void periph_config_apply(void){
       }
     }
   }
-  analogInputReconfigurate();
 }
 
 void periph_new_state(void){
