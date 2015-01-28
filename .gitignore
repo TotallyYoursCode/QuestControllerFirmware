@@ -3,6 +3,9 @@
 **/Obj
 /Arduino Wire not blocking
 *.settings
+*.dep
+*.dni
+*.wsdt
 /max out current test
 /stm8s003f_i2c_iar
 /I2C Master (stm8l-discovery)
