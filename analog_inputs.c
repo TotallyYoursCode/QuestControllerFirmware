@@ -1,6 +1,7 @@
 
 #include "analog_inputs.h"
 #include "board.h"
+#include "stdio.h"
 
 #define AI_CHANNELS     (10)
 FunctionalState	AIState[AI_CHANNELS];
@@ -11,6 +12,7 @@ void analogInputsInit(void)
 {
   ADC1_DeInit();
   ADC1_PrescalerConfig(ADC1_PRESSEL_FCPU_D3);
+  ITC_SetSoftwarePriority(ITC_IRQ_ADC1, ITC_PRIORITYLEVEL_1);	// the lowest priority
   // ADC1->CR1 |= ADC1_CR1_ADON;
 }
 
@@ -67,6 +69,7 @@ void analogInputStartConversion(void)
    
    ConvVal += ADC1_GetConversionValue();
    if (++averageCounter >= AVERAGE_CYCLES) {
+	   averageCounter = 0;
 	   AIValue[CurAdcCh] = ConvVal/AVERAGE_CYCLES/4;  // div by 4 because of 10-bit result
 	   ConvVal = 0;
 	   for (i = CurAdcCh + 1; i != CurAdcCh; i++) {
