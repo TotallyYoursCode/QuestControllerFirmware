@@ -8,7 +8,6 @@
   ******************************************************************************
   */
 
-#include "main.h"
 #include "stm8s.h"
 #include "i2c_comm.h"
 #include "crc8.h"
@@ -274,8 +273,6 @@ void periph_new_state(void){
 
 void periph_get_state(void){
   uint8_t i;
-  static uint8_t cnt = 0;
-  cnt++;
   for(i = 0; i < __EXT_PIN_COUNT; i++){
     if(IS_DIGITAL_INPUT(PinConfig[i])){
       if(GPIO_ReadInputPin(ExtPinGPIOPort[i], ExtPinNum[i])){
@@ -287,16 +284,9 @@ void periph_get_state(void){
     }
     if(PinConfig[i] == ANALOG_IN){
       PinState[i].AnalogIn = analogInputGetValue((EXT_PIN_NAME_T)i); //AIValue[ExtPinAdcChannel((EXT_PIN_NAME_T)i)];
-      if(cnt == 0){
-        //printf("P%d=%d ", i, AIValue[ExtPinAdcChannel((EXT_PIN_NAME_T)i)]);
-      }
     }
   }
-  if((cnt == 0) & (AICnt != 0)) //printf("\r\n");
-  if(AICnt != 0){
-   ADC1_ITConfig(ADC1_IT_EOCIE, ENABLE);
-   ADC1_StartConversion();
-  }
+  analogInputStartConversion();
 }
 
 void periph_update(void){
@@ -324,30 +314,6 @@ void form_i2c_data(void){
   I2C_set_data(POLL, &i2c_Buf);
 }
 
-/**
-  * @brief ADC1 interrupt routine.
-  * @par Parameters:
-  * None
-  * @retval
-  * None
-  */
- INTERRUPT_HANDLER(ADC1_IRQHandler, 22)
- {
-   uint16_t ConvVal;
-   uint8_t i;
-   ConvVal = ADC1_GetConversionValue();
-   AIValue[CurAdcCh] = (ConvVal>>8)&0xFF;
-   for(i = CurAdcCh + 1; i != CurAdcCh; i++){
-     if(i>AI_CHANNELS)
-       i = 0;
-     if(AIState[i] == ENABLED){
-       ADC1_ConversionConfig(ADC1_CONVERSIONMODE_SINGLE, (ADC1_Channel_TypeDef)i, ADC1_ALIGN_LEFT);
-       CurAdcCh = i;
-       break;
-     }
-   }
-   ADC1_ClearITPendingBit(ADC1_IT_EOC);
- }
 
 
 
